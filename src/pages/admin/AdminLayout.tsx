@@ -119,7 +119,7 @@ export function AdminLayout() {
 
         {/* Grafana 모니터링 대시보드 링크 카드 */}
         <a
-          href="http://localhost:3000"
+          href="https://https://monitoring.antcamp.site/dashboards"
           target="_blank"
           rel="noopener noreferrer"
           className="block border border-dashed border-gray-800 hover:border-gray-700 rounded-xl p-3 mt-3 transition-colors group"

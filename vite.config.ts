@@ -17,24 +17,24 @@ export default defineConfig(({ mode }) => {
       port: 3001,
       proxy: {
         // ── 인증 / 사용자 (user-service :8082) ───────────────────────────
-        '/api/auth': { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/users': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/auth': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
+        '/api/users': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── 대회 (competition-service :8092) ──────────────────────────────
-        '/api/competitions': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/competitions': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── 랭킹 (ranking-service :8094) ──────────────────────────────────
-        '/api/rankings': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/rankings': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── 거래 / 시세 / 종목 / 장 상태 (trade-service :8084) ────────────
-        '/api/market':  { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/trades':  { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/stocks':  { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/market':  { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
+        '/api/trades':  { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
+        '/api/stocks':  { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── 자산 / 계좌 / 보유 종목 (asset-service :8086) ─────────────────
-        '/api/accounts': { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/assets':   { target: 'http://localhost:8080', changeOrigin: true },
-        '/api/holdings': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/accounts': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
+        '/api/assets':   { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
+        '/api/holdings': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── AI 어시스턴트 (assistant-service :8096) ───────────────────────
-        '/api/assistants': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/assistants': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── 알림 (notification-service :8098) ─────────────────────────────
-        '/api/notifications': { target: 'http://localhost:8080', changeOrigin: true },
+        '/api/notifications': { target: 'https://api.antcamp.site', changeOrigin: true, secure: true },
         // ── STOMP WebSocket ───────────────────────────────────────────────
         '/ws-stomp': {
           target: 'http://localhost:8084',
