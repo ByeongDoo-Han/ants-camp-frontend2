@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/yahoo/:path*", "destination": "https://query1.finance.yahoo.com/:path*" },
     { "source": "/api/naver/news", "destination": "/api/naver/news" },
-    { "source": "/api/:path*", "destination": "https://api.antcamp.site/api/:path*" }
+    { "source": "/api/:path*", "destination": "https://api.antcamp.site/api/:path*" },
+    { "source": "/((?!api|yahoo).*)", "destination": "/index.html" }
   ]
 }
