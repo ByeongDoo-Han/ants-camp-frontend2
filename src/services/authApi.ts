@@ -37,6 +37,63 @@ function authHeaders(accessToken?: string | null): HeadersInit {
   }
 }
 
+/**
+ * 401 시 refresh token으로 자동 갱신 후 재시도하는 fetch 래퍼
+ */
+export async function fetchWithAuth(
+  input: RequestInfo,
+  init?: RequestInit,
+): Promise<Response> {
+  const res = await fetch(input, init)
+
+  if (res.status !== 401) return res
+
+  // 토큰 갱신 시도
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (!refreshToken) {
+    // refresh token 없으면 로그아웃 처리
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    window.location.href = '/login'
+    return res
+  }
+
+  try {
+    const refreshRes = await fetch('/api/auth/reissue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    })
+
+    if (!refreshRes.ok) throw new Error('refresh failed')
+
+    const json = await refreshRes.json()
+    const data: AuthResponse = 'data' in json ? json.data : json
+
+    // 새 토큰 저장
+    localStorage.setItem('accessToken', data.accessToken)
+    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken)
+
+    // 원래 요청 재시도 (새 토큰으로)
+    const newInit: RequestInit = {
+      ...init,
+      headers: {
+        ...init?.headers,
+        Authorization: `Bearer ${data.accessToken}`,
+      },
+    }
+    return fetch(input, newInit)
+  } catch {
+    // refresh 실패 → 로그아웃
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    window.location.href = '/login'
+    return res
+  }
+}
+
 // ── 인증 (/api/auth) ───────────────────────────────────────────────────────
 
 /** POST /api/auth/login */
@@ -87,7 +144,7 @@ export async function register(req: RegisterRequest): Promise<void> {
 
 /** GET /api/users/me  — 서버에서 최신 사용자 정보 조회 */
 export async function getMyInfo(userId: string, token: string): Promise<User> {
-  const res = await fetch('/api/users/me', {
+  const res = await fetchWithAuth('/api/users/me', {
     headers: { ...authHeaders(token), 'X-User-Id': userId },
   })
   return unwrap<User>(res)
