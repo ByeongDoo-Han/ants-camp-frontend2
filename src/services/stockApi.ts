@@ -1,3 +1,4 @@
+import { fetchWithAuth } from './authApi'
 import type {
   StockSearchResult, CandleData, ApiResponse, MinutePriceResponse,
   TradeRequest, TradeResponse,
@@ -80,7 +81,7 @@ async function placeOrder(
   accountId: string,
 ): Promise<TradeOrderResponse> {
   const token = localStorage.getItem('accessToken')
-  const res = await fetch(`${BASE_URL}/trades/order`, {
+  const res = await fetchWithAuth(`${BASE_URL}/trades/order`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -297,7 +297,7 @@ export async function joinCompetition(
   nickname: string,
   accessToken?: string,
 ): Promise<CompetitionParticipant> {
-  const res = await fetch(`/api/competitions/${competitionId}/participants`, {
+  const res = await fetchWithAuth(`/api/competitions/${competitionId}/participants`, {
     method: 'POST',
     headers: {
       ...authHeaders(accessToken),
@@ -315,7 +315,7 @@ export async function cancelJoinCompetition(
   nickname: string,
   accessToken?: string,
 ): Promise<CompetitionParticipant> {
-  const res = await fetch(`/api/competitions/${competitionId}/participants`, {
+  const res = await fetchWithAuth(`/api/competitions/${competitionId}/participants`, {
     method: 'DELETE',
     headers: authHeaders(accessToken),
     body: JSON.stringify({ userId, nickname }),
