@@ -201,9 +201,10 @@ export async function updateCompetition(
   req: UpdateCompetitionRequest,
   accessToken: string,
 ): Promise<Competition> {
-  const res = await fetch(`/api/competitions/${id}`, {
+  const currentToken = localStorage.getItem('accessToken') ?? accessToken
+  const res = await fetchWithAuth(`/api/competitions/${id}`, {
     method:  'PATCH',
-    headers: authHeaders(accessToken),
+    headers: authHeaders(currentToken),
     body:    JSON.stringify(req),
   })
   return unwrap<Competition>(res)
@@ -215,9 +216,10 @@ export async function patchCompetitionStatus(
   action: 'publications' | 'starts' | 'finishes' | 'cancellations',
   accessToken: string,
 ): Promise<Competition> {
-  const res = await fetch(`/api/competitions/${id}/${action}`, {
+  const currentToken = localStorage.getItem('accessToken') ?? accessToken
+  const res = await fetchWithAuth(`/api/competitions/${id}/${action}`, {
     method: 'POST',
-    headers: authHeaders(accessToken),
+    headers: authHeaders(currentToken),
   })
   return unwrap<Competition>(res)
 }
@@ -241,9 +243,10 @@ export async function createCompetition(
   },
   accessToken: string,
 ): Promise<void> {
-  const res = await fetch('/api/competitions', {
+  const currentToken = localStorage.getItem('accessToken') ?? accessToken
+  const res = await fetchWithAuth('/api/competitions', {
     method: 'POST',
-    headers: authHeaders(accessToken),
+    headers: authHeaders(currentToken),
     body: JSON.stringify(req),
   })
   if (!res.ok) throw new Error(await extractError(res))
