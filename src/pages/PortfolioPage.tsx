@@ -25,7 +25,8 @@ export function PortfolioPage() {
   // 내 계좌 목록 자동 로드
   useEffect(() => {
     if (!user) { setLoading(false); return }
-    getMyAccounts(token ?? undefined)
+    // localStorage에서 최신 토큰 사용
+    getMyAccounts()
       .then(async (accs) => {
         setAccounts(accs)
         if (accs.length > 0) {
@@ -42,7 +43,9 @@ export function PortfolioPage() {
     if (!user) return
     setFetching(true); setError(null)
     try {
-      setPortfolio(await getAccountDetail(id, user.userId, token ?? undefined))
+      // 항상 최신 토큰 사용
+      const currentToken = localStorage.getItem('accessToken') ?? undefined
+      setPortfolio(await getAccountDetail(id, user.userId, currentToken))
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : '자산 조회 실패')
     } finally {

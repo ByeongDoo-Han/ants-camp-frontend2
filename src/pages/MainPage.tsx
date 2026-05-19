@@ -151,7 +151,7 @@ function PortfolioSnapshotCard() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
-    getMyAccounts(token ?? undefined)
+    getMyAccounts(localStorage.getItem("accessToken") ?? undefined)
       .then(async (accounts) => {
         if (!accounts.length) { setLoading(false); return }
         const acc = accounts[0]
