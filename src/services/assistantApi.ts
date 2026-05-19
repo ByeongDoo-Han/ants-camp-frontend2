@@ -1,4 +1,5 @@
 // ── 공통 ──────────────────────────────────────────────────────────────────
+import { fetchWithAuth } from './authApi'
 
 export interface CursorPage<T> {
   items: T[]
@@ -209,21 +210,21 @@ export async function getSessions(params?: {
   keyword?: string
   lastUpdatedAt?: string
 }): Promise<CursorPage<ChatSession>> {
-  const res = await fetch(`/api/assistants/sessions${toQuery(params ?? {})}`, {
+  const res = await fetchWithAuth(`/api/assistants/sessions${toQuery(params ?? {})}`, {
     headers: authHeaders(),
   })
   return unwrap<CursorPage<ChatSession>>(res)
 }
 
 export async function getMessages(chatSessionId: string): Promise<ChatMessage[]> {
-  const res = await fetch(`/api/assistants/sessions/${chatSessionId}/messages`, {
+  const res = await fetchWithAuth(`/api/assistants/sessions/${chatSessionId}/messages`, {
     headers: authHeaders(),
   })
   return unwrap<ChatMessage[]>(res)
 }
 
 export async function sendMessage(chatSessionId: string, content: string): Promise<ChatMessage> {
-  const res = await fetch(`/api/assistants/sessions/${chatSessionId}/messages`, {
+  const res = await fetchWithAuth(`/api/assistants/sessions/${chatSessionId}/messages`, {
     method: 'POST',
     headers: authHeaders(true),
     body: JSON.stringify({ content }),
@@ -239,7 +240,7 @@ export async function listDocuments(params?: {
   title?: string
   lastUpdatedAt?: string
 }): Promise<CursorPage<DocumentItem>> {
-  const res = await fetch(`/api/assistants/documents${toQuery(params ?? {})}`, {
+  const res = await fetchWithAuth(`/api/assistants/documents${toQuery(params ?? {})}`, {
     headers: authHeaders(),
   })
   const raw = await unwrap<any>(res)
@@ -251,7 +252,7 @@ export async function listDocuments(params?: {
 }
 
 export async function getDocument(documentId: string): Promise<DocumentDetail> {
-  const res = await fetch(`/api/assistants/documents/${documentId}`, {
+  const res = await fetchWithAuth(`/api/assistants/documents/${documentId}`, {
     headers: authHeaders(),
   })
   const raw = await unwrap<any>(res)
@@ -282,7 +283,7 @@ export async function updateDocument(
   documentId: string,
   req: SaveDocumentRequest,
 ): Promise<DocumentUploadResponse> {
-  const res = await fetch(`/api/assistants/documents/${documentId}`, {
+  const res = await fetchWithAuth(`/api/assistants/documents/${documentId}`, {
     method: 'PUT',
     headers: authHeaders(true),
     body: JSON.stringify({ title: req.title, type: req.docType, content: req.content }),
@@ -302,7 +303,7 @@ function mapDocumentItem(raw: any): DocumentItem {
 
 // 로그인 사용자 공개 조회 — title/docType/content만 사용, 운영 메타 미노출
 export async function getPublicDocument(documentId: string): Promise<DocumentDetail> {
-  const res = await fetch(`/api/assistants/documents/${documentId}`, {
+  const res = await fetchWithAuth(`/api/assistants/documents/${documentId}`, {
     headers: authHeaders(),
   })
   const raw = await unwrap<any>(res)
@@ -320,7 +321,7 @@ export async function getPublicDocument(documentId: string): Promise<DocumentDet
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
-  const res = await fetch(`/api/assistants/documents/${documentId}`, {
+  const res = await fetchWithAuth(`/api/assistants/documents/${documentId}`, {
     method: 'DELETE',
     headers: authHeaders(),
   })
@@ -374,7 +375,7 @@ export async function runEvaluation(req: RunEvaluationRequest): Promise<{ runId:
 }
 
 export async function getEvalRunStatus(runId: string): Promise<EvalRunStatus> {
-  const res = await fetch(`/api/assistants/evaluations/${runId}/status`, {
+  const res = await fetchWithAuth(`/api/assistants/evaluations/${runId}/status`, {
     headers: authHeaders(),
   })
   return unwrap<EvalRunStatus>(res)
@@ -387,7 +388,7 @@ export async function listEvalResults(params?: {
   endDate?: string
   lastUpdatedAt?: string
 }): Promise<EvalResultListResponse> {
-  const res = await fetch(`/api/assistants/evaluations${toQuery(params ?? {})}`, {
+  const res = await fetchWithAuth(`/api/assistants/evaluations${toQuery(params ?? {})}`, {
     headers: authHeaders(),
   })
   const text = await res.text()
