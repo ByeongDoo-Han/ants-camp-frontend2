@@ -191,13 +191,16 @@ interface HoldingRowProps {
 }
 
 export function HoldingRow({ holding: h, totalAsset }: HoldingRowProps) {
-  const evalAmt = h.finalPrice * h.stockAmount
+  // finalPrice가 0이면 buyPrice를 마지막 알려진 가격으로 사용
+  const currentPrice = h.finalPrice > 0 ? h.finalPrice : h.buyPrice
+  const evalAmt = currentPrice * h.stockAmount
   const costAmt = h.buyPrice   * h.stockAmount
   const pct     = totalAsset > 0 ? (evalAmt / totalAsset) * 100 : 0
   const pl      = evalAmt - costAmt
   const plRate  = costAmt > 0 ? (pl / costAmt) * 100 : 0
   const plUp    = pl >= 0
-  const priceUp = h.finalPrice >= h.buyPrice
+  const priceUp = currentPrice >= h.buyPrice
+  const isPriceFallback = h.finalPrice === 0 || h.finalPrice === undefined
   const code    = h.stockCode?.trim() ?? ''
   const name    = code ? nameOf(code) : null
   // 백엔드가 일부 보유 종목에 stockName 매핑이 없을 뿐 아니라 stockCode 까지 빈 문자열로 내려오는 경우가 있음.
@@ -223,8 +226,11 @@ export function HoldingRow({ holding: h, totalAsset }: HoldingRowProps) {
             <span className="font-mono">{fmt(h.buyPrice)}</span>
             <span className="mx-1 text-gray-600">→</span>
             <span className={`font-mono font-semibold ${priceUp ? 'text-red-500 dark:text-red-400' : 'text-blue-500 dark:text-blue-400'}`}>
-              {fmt(h.finalPrice)}
+              {fmt(currentPrice)}
             </span>
+            {isPriceFallback && (
+              <span className="ml-1 text-[9px] text-gray-600">(매수가)</span>
+            )}
           </p>
         </div>
 
