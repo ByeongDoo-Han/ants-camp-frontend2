@@ -38,7 +38,49 @@ function authHeaders(accessToken?: string | null): HeadersInit {
 }
 
 /**
+ * Refresh Lock — 동시에 여러 요청이 401을 받아도 refresh는 딱 1번만 실행
+ *
+ * 동작 원리:
+ *  1) 첫 번째 401 요청이 refreshPromise를 생성하고 refresh 진행
+ *  2) 이후 401 요청들은 이미 진행 중인 refreshPromise를 그대로 await
+ *  3) refresh 완료 후 모든 대기 요청이 새 토큰으로 재시도
+ */
+let refreshPromise: Promise<string | null> | null = null
+
+async function doRefresh(): Promise<string | null> {
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (!refreshToken) return null
+
+  try {
+    const res = await fetch('/api/auth/reissue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    })
+    if (!res.ok) return null
+
+    const json = await res.json()
+    const data: AuthResponse = 'data' in json ? json.data : json
+
+    localStorage.setItem('accessToken', data.accessToken)
+    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken)
+
+    return data.accessToken
+  } catch {
+    return null
+  }
+}
+
+function clearAuth() {
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user')
+  window.location.href = '/login'
+}
+
+/**
  * 401 시 refresh token으로 자동 갱신 후 재시도하는 fetch 래퍼
+ * 동시 다중 요청에서 refresh가 중복 실행되지 않도록 Lock 처리됨
  */
 export async function fetchWithAuth(
   input: RequestInfo,
@@ -48,50 +90,35 @@ export async function fetchWithAuth(
 
   if (res.status !== 401) return res
 
-  // 토큰 갱신 시도
-  const refreshToken = localStorage.getItem('refreshToken')
-  if (!refreshToken) {
-    // refresh token 없으면 로그아웃 처리
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    window.location.href = '/login'
+  // refresh token 없으면 즉시 로그아웃
+  if (!localStorage.getItem('refreshToken')) {
+    clearAuth()
     return res
   }
 
-  try {
-    const refreshRes = await fetch('/api/auth/reissue', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+  // 이미 refresh 중이면 기다렸다가 새 토큰으로 재시도
+  // 새로 refresh를 시작해야 하면 Promise를 생성
+  if (!refreshPromise) {
+    refreshPromise = doRefresh().finally(() => {
+      refreshPromise = null
     })
+  }
 
-    if (!refreshRes.ok) throw new Error('refresh failed')
+  const newToken = await refreshPromise
 
-    const json = await refreshRes.json()
-    const data: AuthResponse = 'data' in json ? json.data : json
-
-    // 새 토큰 저장
-    localStorage.setItem('accessToken', data.accessToken)
-    if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken)
-
-    // 원래 요청 재시도 (새 토큰으로)
-    const newInit: RequestInit = {
-      ...init,
-      headers: {
-        ...init?.headers,
-        Authorization: `Bearer ${data.accessToken}`,
-      },
-    }
-    return fetch(input, newInit)
-  } catch {
-    // refresh 실패 → 로그아웃
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    window.location.href = '/login'
+  if (!newToken) {
+    clearAuth()
     return res
   }
+
+  // 새 토큰으로 원래 요청 재시도
+  return fetch(input, {
+    ...init,
+    headers: {
+      ...init?.headers,
+      Authorization: `Bearer ${newToken}`,
+    },
+  })
 }
 
 // ── 인증 (/api/auth) ───────────────────────────────────────────────────────
