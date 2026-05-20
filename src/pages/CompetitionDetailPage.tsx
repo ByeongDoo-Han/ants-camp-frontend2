@@ -42,7 +42,8 @@ const STATUS_CHIP: Record<CompetitionStatus, string> = {
 };
 
 const fmt = (n: number) => n.toLocaleString("ko-KR");
-const fmtDate = (dt: string) => (dt ? dt.slice(0, 10).replace(/-/g, ".") : "");
+const fmtDate = (dt: string) =>
+	dt ? dt.slice(0, 10).replace(/-/g, ".") + " " + dt.slice(11, 16) : "";
 
 function getDDay(comp: Competition): {label: string; value: string} | null {
 	const now = Date.now();
