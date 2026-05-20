@@ -323,7 +323,7 @@ export function StockDetail() {
 
 			{/* ── 우측: 매수/매도 패널 ──────────────────────────────────── */}
 			<div className="w-64 flex-shrink-0 overflow-y-auto">
-				<div className="bg-gray-800 rounded-2xl p-4 mt-12 border border-gray-700">
+				<div className="bg-gray-900 rounded-2xl p-4 mt-12 border border-gray-700">
 					<h3 className="text-sm font-semibold text-gray-300 mb-3">
 						주문
 					</h3>
