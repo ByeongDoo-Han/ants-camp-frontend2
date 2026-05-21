@@ -394,6 +394,7 @@ function MyCompetitionsWidget({ competitions }: { competitions: Competition[] })
 
 // ── 메인 페이지 ──────────────────────────────────────────────────────────────
 export function MainPage() {
+  const { user } = useAuthStore()
   const [competitions, setCompetitions] = useState<Competition[]>([])
   const [compLoading,  setCompLoading]  = useState(true)
 
@@ -421,8 +422,8 @@ export function MainPage() {
           <PortfolioSnapshotCard />
         </div>
 
-        {/* 내 참여 대회 */}
-        {!compLoading && <MyCompetitionsWidget competitions={competitions} />}
+        {/* 내 참여 대회 — 로그인 사용자만 표시 */}
+        {!compLoading && user && <MyCompetitionsWidget competitions={competitions} />}
 
         {/* ── 2 x 2 그리드 ─────────────────────────────────────────
             상단: [가이드] [실시간 인기 종목]

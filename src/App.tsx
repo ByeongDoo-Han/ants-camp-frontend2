@@ -136,22 +136,9 @@ export default function App() {
 							}
 						/>
 
-						<Route
-							path="/guides"
-							element={
-								<PrivateRoute>
-									<GuidesPage />
-								</PrivateRoute>
-							}
-						/>
-						<Route
-							path="/guides/:documentId"
-							element={
-								<PrivateRoute>
-									<GuideDetailPage />
-								</PrivateRoute>
-							}
-						/>
+						{/* 가이드 — 비로그인 허용 */}
+						<Route path="/guides" element={<GuidesPage />} />
+						<Route path="/guides/:documentId" element={<GuideDetailPage />} />
 
 						{/* 어드민 — 공통 레이아웃 + 중첩 라우트 */}
 						<Route

@@ -4,6 +4,7 @@ import type {
   Competition, CompetitionRanking, CompetitionParticipant, CompetitionChangeNotice,
   AccountResult, AssetResult, HoldingItem, AccountPortfolio,
 } from '@/types/auth'
+import { useAuthStore } from '@/store/authStore'
 /** 응답에서 에러 메시지를 추출합니다. JSON·텍스트·상태코드 순으로 시도합니다. */
 async function extractError(res: Response): Promise<string> {
   try {
@@ -75,7 +76,9 @@ function clearAuth() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   localStorage.removeItem('user')
-  window.location.href = '/login'
+  // window.location.href = '/login' 대신 Zustand logout 사용
+  // → PrivateRoute가 리다이렉트를 담당하므로 공개 페이지에서는 리다이렉트하지 않음
+  useAuthStore.getState().logout()
 }
 
 /**

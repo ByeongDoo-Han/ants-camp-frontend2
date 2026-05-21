@@ -240,9 +240,8 @@ export async function listDocuments(params?: {
   title?: string
   lastUpdatedAt?: string
 }): Promise<CursorPage<DocumentItem>> {
-  const res = await fetchWithAuth(`/api/assistants/documents${toQuery(params ?? {})}`, {
-    headers: authHeaders(),
-  })
+  // 공개 API — 인증 불필요, plain fetch 사용 (fetchWithAuth 쓰면 비로그인 시 /login 리다이렉트 유발)
+  const res = await fetch(`/api/assistants/documents${toQuery(params ?? {})}`)
   const raw = await unwrap<any>(res)
   return {
     items:      (raw.items ?? []).map(mapDocumentItem),
@@ -252,9 +251,8 @@ export async function listDocuments(params?: {
 }
 
 export async function getDocument(documentId: string): Promise<DocumentDetail> {
-  const res = await fetchWithAuth(`/api/assistants/documents/${documentId}`, {
-    headers: authHeaders(),
-  })
+  // 공개 API — 인증 불필요
+  const res = await fetch(`/api/assistants/documents/${documentId}`)
   const raw = await unwrap<any>(res)
   return {
     documentId:    raw.documentId,
