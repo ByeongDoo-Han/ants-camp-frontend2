@@ -90,7 +90,13 @@ export async function fetchWithAuth(
 
   if (res.status !== 401) return res
 
-  // refresh token 없으면 즉시 로그아웃
+  // accessToken도 refreshToken도 없으면 → 애초에 비로그인 상태
+  // 로그인한 적 없는 사용자를 강제 리다이렉트하지 않도록 그냥 401 반환
+  if (!localStorage.getItem('accessToken') && !localStorage.getItem('refreshToken')) {
+    return res
+  }
+
+  // refresh token 없으면 즉시 로그아웃 (토큰 만료 등)
   if (!localStorage.getItem('refreshToken')) {
     clearAuth()
     return res
